@@ -1,0 +1,22 @@
+{
+  "name": "test",
+  "version": "1.0.0",
+  "description": "",
+  "main": "cart.js",
+  "scripts": {
+    "test": "jest"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "isomorphic-fetch": "^3.0.0",
+    "jest": "^27.4.7"
+  },
+  "dependencies": {
+    "knex": "^0.95.15",
+    "koa": "^2.13.4",
+    "koa-router": "^10.1.1",
+    "sqlite3": "^5.0.2"
+  }
+}
