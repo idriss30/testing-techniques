@@ -1,10 +1,11 @@
 const { afterAll, test, expect, beforeEach } = require("@jest/globals");
 
 const fetch = require("isomorphic-fetch");
-const { app, resetState } = require("./server");
+const { app, inventory, carts } = require("./server");
 
 //////////   testing without database but state management
 const apiRoot = "http://localhost:3000";
+
 const addItem = (username, item) => {
   return fetch(`${apiRoot}/carts/${username}/items/${item}`, {
     method: "POST",
@@ -21,30 +22,45 @@ const removeItem = (username, item) => {
   });
 };
 
-//putting in a describe
-test("adding items to a cart", async () => {
-  const initialItemsResponse = await getItems("idriss");
-  expect(initialItemsResponse.status).toEqual(404);
+describe("addItem", () => {
+  beforeEach(() => carts.clear());
+  beforeEach(() => inventory.set("cheesecake", 1));
 
-  const addItemResponse = await addItem("idriss", "cheesecake");
-  expect(await addItemResponse.json()).toEqual(["cheesecake"]);
+  test("good answer", async () => {
+    const addItemResponse = await addItem("idriss", "cheesecake");
+    expect(addItemResponse.status).toBe(200);
+    expect(await addItemResponse.json()).toEqual(["cheesecake"]);
+  });
 
-  const finalItemsResponse = await getItems("idriss");
-  expect(await finalItemsResponse.json()).toEqual(["cheesecake"]);
+  test("inventory update", async () => {
+    await addItem("jacob", "cheesecake");
+    expect(inventory.get("cheesecake")).toBe(0);
+  });
+
+  test("cart update", async () => {
+    await addItem("idriss", "cheesecake");
+    expect(carts.get("idriss")).toEqual(["cheesecake"]);
+  });
+  test("soldout items", async () => {
+    inventory.set("cheesecake", 0);
+    const failedAddItem = await addItem("lucas", "cheesecake");
+    expect(failedAddItem.status).toBe(404);
+  });
 });
 
-test("Remove item from the cart", async () => {
-  const initialResponse = await getItems("idriss");
-  expect(initialResponse.status).toEqual(404);
+describe("removeItem", () => {
+  test("Remove item from the cart", async () => {
+    const initialResponse = await getItems("idriss");
+    expect(initialResponse.status).toEqual(404);
 
-  await addItem("idriss", "cheesecake");
+    await addItem("idriss", "cheesecake");
 
-  const removeItemResponse = await removeItem("idriss", "cheesecake");
-  expect(await removeItemResponse.json()).toEqual([]);
+    const removeItemResponse = await removeItem("idriss", "cheesecake");
+    expect(await removeItemResponse.json()).toEqual([]);
 
-  const finalResponse = await getItems("idriss");
-  expect(await finalResponse.json()).toEqual([] || undefined);
+    const finalResponse = await getItems("idriss");
+    expect(await finalResponse.json()).toEqual([] || undefined);
+  });
 });
 
-beforeEach(() => resetState());
 afterAll(() => app.close());
