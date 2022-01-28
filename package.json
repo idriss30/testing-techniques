@@ -2,16 +2,18 @@
   "name": "test",
   "version": "1.0.0",
   "description": "",
-  "main": "cart.js",
+  "main": "examp.js",
   "scripts": {
-    "test": "jest"
+    "test": "jest",
+    "start": "node examp.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "devDependencies": {
     "isomorphic-fetch": "^3.0.0",
-    "jest": "^27.4.7"
+    "jest": "^27.4.7",
+    "jest-extended": "^1.2.0"
   },
   "dependencies": {
     "knex": "^0.95.15",
