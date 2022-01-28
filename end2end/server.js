@@ -1,16 +1,19 @@
 const Koa = require("koa");
 const Router = require("koa-router");
+const { inventory, getInventory } = require("./inventory");
 
 //implementation doesn't focus on the database
 const app = new Koa(),
   router = new Router();
 let carts = new Map(); // store the application state
 
-let inventory = new Map();
-
 router.get("/carts/:username/:items", (ctx) => {
   const cart = carts.get(ctx.params.username);
   cart ? (ctx.body = cart) : (ctx.status = 404);
+});
+
+router.get("/inventory", (ctx) => {
+  return (ctx.body = getInventory());
 });
 
 router.post("/carts/:username/items/:item", (ctx) => {
