@@ -5,6 +5,22 @@ beforeEach(() => inventory.clear());
 beforeAll(() => jest.spyOn(logger, "logInfo").mockImplementation(jest.fn())); // turn spy intp stub by passing dummy function to avoid polluting the console
 beforeAll(() => jest.spyOn(logger, "logError").mockImplementation(jest.fn()));
 afterEach(() => logger.logInfo.mockClear()); //The spy’s mockClear function will reset both the spy.mock.calls and spy.mock.instances arrays
+beforeEach(() =>
+  //Before each test, replaces the process’s memoryUsage function with a test double that returns an object containing static values
+  jest.spyOn(process, "memoryUsage").mockImplementation(() => {
+    return {
+      rss: 123456,
+      heapTotal: 1,
+      heapUsed: 2,
+      external: 1,
+    };
+  })
+);
+
+jest.mock("./logger", () => ({
+  logInfo: jest.fn(),
+  logError: jest.fn(),
+}));
 
 test("cancel operation for invalid quantities", () => {
   //expect.hasAssertions(); // cause text to fail if it doesn't execute at least one assertions
@@ -64,7 +80,7 @@ test("login items", () => {
 
   // asserting on usage of spy only after exercising it
 
-  expect(firstArg).toEqual({ item: "cheesecake", n: 2 });
+  expect(firstArg).toEqual({ item: "cheesecake", n: 2, memoryUsage: 123456 });
   expect(lastArg).toEqual("item added to the inventory");
 });
 
